@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione</title>
+    <title>Registrazione utente</title>
+    <!-- Collegamento al framework CSS Bootstrap per uno stile pulito e responsive -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">Registrazione utente</h2>
-        <form action="register.php" method="post" class="mx-auto" style="max-width: 500px;" onsubmit="return checkPasswords();">
+
+        <!-- Messaggio di risposta (successo o errore) -->
+        <div id="responseMsg" class="alert" style="display: none;"></div>
+
+        <!-- Form di registrazione -->
+        <form id="registerForm" class="mx-auto" style="max-width: 500px;" onsubmit="return registerUser(event);">
+            <!-- Campo per il nome utente -->
             <div class="mb-3">
                 <label for="username" class="form-label">Nome utente</label>
                 <input type="text" class="form-control" id="username" name="username" required>
             </div>
-            <!-- Aggiunto campo "ruolo" -->
+
+            <!-- Campo per il ruolo dell'utente -->
             <div class="mb-3">
                 <label for="ruolo" class="form-label">Ruolo</label>
                 <select class="form-select" id="ruolo" name="ruolo" required>
@@ -24,34 +32,75 @@
                     <option value="tecnico-perfusionista">Tecnico-perfusionista</option>
                 </select>
             </div>
+
+            <!-- Campo per la password -->
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+
+            <!-- Campo per confermare la password -->
             <div class="mb-3">
                 <label for="confirm_password" class="form-label">Ripeti password</label>
                 <input type="password" class="form-control" id="confirm_password" required>
             </div>
+
+            <!-- Messaggio di errore in caso di password non corrispondenti -->
             <div id="passwordMismatch" class="text-danger mb-3" style="display: none;">
                 Le password non coincidono.
             </div>
+
+            <!-- Bottone di invio -->
             <button type="submit" class="btn btn-success w-100">Registrati</button>
         </form>
     </div>
 
     <script>
-        function checkPasswords() {
-            const pass = document.getElementById('password').value;
-            const confirm = document.getElementById('confirm_password').value;
-            const error = document.getElementById('passwordMismatch');
+        // Funzione che controlla le password e invia i dati via AJAX
+        function registerUser(event) {
+            event.preventDefault(); // Previene il comportamento predefinito del form (invio e ricarica pagina)
 
-            if (pass !== confirm) {
-                error.style.display = 'block';
-                return false;
+            // Recupero dei valori dei campi
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            const errorMsg = document.getElementById('passwordMismatch');
+            const responseBox = document.getElementById('responseMsg');
+
+            // Controlla se le due password coincidono
+            if (password !== confirm) {
+                errorMsg.style.display = 'block'; // Mostra errore
+                return false; // Interrompe l'invio
+            } else {
+                errorMsg.style.display = 'none'; // Nasconde errore
             }
 
-            error.style.display = 'none';
-            return true;
+            // Prepara i dati del form per l'invio
+            const formData = new FormData(document.getElementById('registerForm'));
+
+            // Invia i dati al file PHP senza ricaricare la pagina (AJAX)
+            fetch('register.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text()) // Legge la risposta come testo
+            .then(data => {
+                responseBox.style.display = 'block'; // Mostra il messaggio di risposta
+                // Mostra in verde se è andato tutto bene, altrimenti in rosso
+                if (data.includes('successo')) {
+                    responseBox.className = 'alert alert-success';
+                } else {
+                    responseBox.className = 'alert alert-danger';
+                }
+                responseBox.textContent = data; // Mostra il messaggio restituito da PHP
+            })
+            .catch(err => {
+                // In caso di errore di connessione
+                responseBox.style.display = 'block';
+                responseBox.className = 'alert alert-danger';
+                responseBox.textContent = 'Errore di connessione col server.';
+            });
+
+            return false; // Impedisce il reload della pagina
         }
     </script>
 </body>
