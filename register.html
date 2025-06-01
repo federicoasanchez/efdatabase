@@ -14,6 +14,16 @@
                 <label for="username" class="form-label">Nome utente</label>
                 <input type="text" class="form-control" id="username" name="username" required>
             </div>
+            <!-- Aggiunto campo "ruolo" -->
+            <div class="mb-3">
+                <label for="ruolo" class="form-label">Ruolo</label>
+                <select class="form-select" id="ruolo" name="ruolo" required>
+                    <option value="">Seleziona un ruolo</option>
+                    <option value="medico">Medico</option>
+                    <option value="infermiere">Infermiere</option>
+                    <option value="tecnico-perfusionista">Tecnico-perfusionista</option>
+                </select>
+            </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
