@@ -1,107 +1,131 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione utente</title>
-    <!-- Collegamento al framework CSS Bootstrap per uno stile pulito e responsive -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registrazione utente</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #dettagliErrore {
+      display: none;
+      white-space: pre-wrap;
+      background-color: #f8f9fa;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Registrazione utente</h2>
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Registrazione utente</h2>
 
-        <!-- Messaggio di risposta (successo o errore) -->
-        <div id="responseMsg" class="alert" style="display: none;"></div>
+    <!-- Contenitore per i messaggi -->
+    <div id="responseMsg" class="alert" style="display: none;"></div>
+    <!-- Pulsante per mostrare dettagli errore -->
+    <button id="toggleErrorBtn" class="btn btn-outline-secondary btn-sm mb-3" style="display: none;" onclick="toggleError()">Mostra dettagli errore</button>
+    <!-- Dettaglio tecnico dell’errore -->
+    <div id="dettagliErrore"></div>
 
-        <!-- Form di registrazione -->
-        <form id="registerForm" class="mx-auto" style="max-width: 500px;" onsubmit="return registerUser(event);">
-            <!-- Campo per il nome utente -->
-            <div class="mb-3">
-                <label for="username" class="form-label">Nome utente</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
+    <form id="registerForm" class="mx-auto" style="max-width: 500px;" onsubmit="return registerUser(event);">
+      <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-control" id="nome" name="nome" required>
+      </div>
 
-            <!-- Campo per il ruolo dell'utente -->
-            <div class="mb-3">
-                <label for="ruolo" class="form-label">Ruolo</label>
-                <select class="form-select" id="ruolo" name="ruolo" required>
-                    <option value="">Seleziona un ruolo</option>
-                    <option value="medico">Medico</option>
-                    <option value="infermiere">Infermiere</option>
-                    <option value="tecnico-perfusionista">Tecnico-perfusionista</option>
-                </select>
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Cognome</label>
+        <input type="text" class="form-control" id="cognome" name="cognome" required>
+      </div>
 
-            <!-- Campo per la password -->
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Nome utente</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
 
-            <!-- Campo per confermare la password -->
-            <div class="mb-3">
-                <label for="confirm_password" class="form-label">Ripeti password</label>
-                <input type="password" class="form-control" id="confirm_password" required>
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Ruolo</label>
+        <select class="form-select" id="ruolo" name="ruolo" required>
+          <option value="">Seleziona un ruolo</option>
+          <option value="medico">Medico</option>
+          <option value="infermiere">Infermiere</option>
+          <option value="tecnico-perfusionista">Tecnico-perfusionista</option>
+        </select>
+      </div>
 
-            <!-- Messaggio di errore in caso di password non corrispondenti -->
-            <div id="passwordMismatch" class="text-danger mb-3" style="display: none;">
-                Le password non coincidono.
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
 
-            <!-- Bottone di invio -->
-            <button type="submit" class="btn btn-success w-100">Registrati</button>
-        </form>
-    </div>
+      <div class="mb-3">
+        <label class="form-label">Ripeti password</label>
+        <input type="password" class="form-control" id="confirm_password" required>
+      </div>
 
-    <script>
-        // Funzione che controlla le password e invia i dati via AJAX
-        function registerUser(event) {
-            event.preventDefault(); // Previene il comportamento predefinito del form (invio e ricarica pagina)
+      <div id="passwordMismatch" class="text-danger mb-3" style="display: none;">
+        Le password non coincidono.
+      </div>
 
-            // Recupero dei valori dei campi
-            const password = document.getElementById('password').value;
-            const confirm = document.getElementById('confirm_password').value;
-            const errorMsg = document.getElementById('passwordMismatch');
-            const responseBox = document.getElementById('responseMsg');
+      <button type="submit" class="btn btn-success w-100">Registrati</button>
+    </form>
+  </div>
 
-            // Controlla se le due password coincidono
-            if (password !== confirm) {
-                errorMsg.style.display = 'block'; // Mostra errore
-                return false; // Interrompe l'invio
-            } else {
-                errorMsg.style.display = 'none'; // Nasconde errore
-            }
+  <script>
+    // Mostra/Nasconde la sezione dettagliata dell'errore
+    function toggleError() {
+      const dettagli = document.getElementById('dettagliErrore');
+      dettagli.style.display = dettagli.style.display === 'none' ? 'block' : 'none';
+    }
 
-            // Prepara i dati del form per l'invio
-            const formData = new FormData(document.getElementById('registerForm'));
+    // Invia i dati al server e gestisce la risposta
+    function registerUser(event) {
+      event.preventDefault();
 
-            // Invia i dati al file PHP senza ricaricare la pagina (AJAX)
-            fetch('register.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text()) // Legge la risposta come testo
-            .then(data => {
-                responseBox.style.display = 'block'; // Mostra il messaggio di risposta
-                // Mostra in verde se è andato tutto bene, altrimenti in rosso
-                if (data.includes('successo')) {
-                    responseBox.className = 'alert alert-success';
-                } else {
-                    responseBox.className = 'alert alert-danger';
-                }
-                responseBox.textContent = data; // Mostra il messaggio restituito da PHP
-            })
-            .catch(err => {
-                // In caso di errore di connessione
-                responseBox.style.display = 'block';
-                responseBox.className = 'alert alert-danger';
-                responseBox.textContent = 'Errore di connessione col server.';
-            });
+      const pass = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm_password').value;
+      const mismatch = document.getElementById('passwordMismatch');
+      const msg = document.getElementById('responseMsg');
+      const dettagli = document.getElementById('dettagliErrore');
+      const btn = document.getElementById('toggleErrorBtn');
 
-            return false; // Impedisce il reload della pagina
+      if (pass !== confirm) {
+        mismatch.style.display = 'block';
+        return false;
+      } else {
+        mismatch.style.display = 'none';
+      }
+
+      const formData = new FormData(document.getElementById('registerForm'));
+
+      fetch('register.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        msg.style.display = 'block';
+        msg.className = 'alert ' + (data.success ? 'alert-success' : 'alert-danger');
+        msg.textContent = data.message;
+
+        if (data.success) {
+          btn.style.display = 'none';
+          dettagli.style.display = 'none';
+        } else {
+          btn.style.display = 'inline-block';
+          dettagli.textContent = data.error_detail || 'Errore sconosciuto.';
         }
-    </script>
+      })
+      .catch(() => {
+        msg.style.display = 'block';
+        msg.className = 'alert alert-danger';
+        msg.textContent = 'Errore di comunicazione col server.';
+      });
+
+      return false;
+    }
+  </script>
 </body>
 </html>
