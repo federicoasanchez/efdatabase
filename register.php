@@ -1,51 +1,71 @@
 <?php
-// Dati di accesso al database
+// Imposta il tipo di risposta come JSON
+header('Content-Type: application/json');
+
+// Connessione al database
 $host = 'localhost';
 $user = 'root';
 $pass = '';
 $dbname = 'efdatabase';
-
-// Crea la connessione al database
 $conn = new mysqli($host, $user, $pass, $dbname);
 
-// Controlla se la connessione ha avuto successo
+// Se la connessione fallisce, invia errore
 if ($conn->connect_error) {
-    // In caso di errore di connessione, stampa messaggio e termina
-    echo "Errore: connessione al database fallita.";
+    echo json_encode([
+        "success" => false,
+        "message" => "Errore di connessione al database.",
+        "error_detail" => $conn->connect_error
+    ]);
     exit;
 }
 
-// Preleva i dati inviati dal form
+// Recupera e valida i dati
+$nome = $_POST['nome'] ?? '';
+$cognome = $_POST['cognome'] ?? '';
 $username = $_POST['username'] ?? '';
-$password = $_POST['password'] ?? '';
 $ruolo = $_POST['ruolo'] ?? '';
+$password = $_POST['password'] ?? '';
 
-// Controlla se i campi sono stati compilati
-if ($username === '' || $password === '' || $ruolo === '') {
-    echo "Errore: tutti i campi sono obbligatori.";
+if (!$nome || !$cognome || !$username || !$ruolo || !$password) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Dati mancanti. Compila tutti i campi richiesti.",
+        "error_detail" => "Uno o più campi POST sono vuoti."
+    ]);
     exit;
 }
 
-// Crea un hash sicuro della password per proteggerla
+// Cripta la password in modo sicuro
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-// Prepara la query SQL con parametri per evitare SQL injection
-$sql = "INSERT INTO utenti (username, password, ruolo) VALUES (?, ?, ?)";
+// Prepara e esegue la query
+$sql = "INSERT INTO utenti (nome, cognome, username, password, ruolo) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 
-// Collega i parametri alla query (tutti stringhe: "sss")
-$stmt->bind_param("sss", $username, $hash, $ruolo);
-
-// Esegue la query
-if ($stmt->execute()) {
-    // Se l'inserimento è andato a buon fine, invia messaggio positivo
-    echo "Registrazione completata con successo, $username!";
-} else {
-    // Se si è verificato un errore (es. username già esistente), mostra errore
-    echo "Errore durante la registrazione: " . $stmt->error;
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Errore interno nella preparazione della query.",
+        "error_detail" => $conn->error
+    ]);
+    exit;
 }
 
-// Chiude la query e la connessione
+$stmt->bind_param("sssss", $nome, $cognome, $username, $hash, $ruolo);
+
+if ($stmt->execute()) {
+    echo json_encode([
+        "success" => true,
+        "message" => "Registrazione completata con successo, $nome $cognome!"
+    ]);
+} else {
+    echo json_encode([
+        "success" => false,
+        "message" => "Registrazione fallita per errore del database.",
+        "error_detail" => $stmt->error
+    ]);
+}
+
 $stmt->close();
 $conn->close();
 ?>
