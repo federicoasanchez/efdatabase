@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">Registrazione utente</h2>
-        <form action="register.php" method="post" class="mx-auto" style="max-width: 500px;">
+        <form action="register.php" method="post" class="mx-auto" style="max-width: 500px;" onsubmit="return checkPasswords();">
             <div class="mb-3">
                 <label for="username" class="form-label">Nome utente</label>
                 <input type="text" class="form-control" id="username" name="username" required>
@@ -18,8 +18,31 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Ripeti password</label>
+                <input type="password" class="form-control" id="confirm_password" required>
+            </div>
+            <div id="passwordMismatch" class="text-danger mb-3" style="display: none;">
+                Le password non coincidono.
+            </div>
             <button type="submit" class="btn btn-success w-100">Registrati</button>
         </form>
     </div>
+
+    <script>
+        function checkPasswords() {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            const error = document.getElementById('passwordMismatch');
+
+            if (pass !== confirm) {
+                error.style.display = 'block';
+                return false;
+            }
+
+            error.style.display = 'none';
+            return true;
+        }
+    </script>
 </body>
 </html>
